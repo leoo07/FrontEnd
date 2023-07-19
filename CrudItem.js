@@ -1,13 +1,17 @@
+import './CrudItem.css';
 import { useState } from "react";
 
 const CrudItem = () => {
     const [showCreate, setShowCreate] = useState(false)
     const [showDelete, setShowDelete] = useState(false)
+    const [showUpdate, setShowUpdate] = useState(false)
+    const [showDisplay, setShowDisplay] = useState([]);
 
+    let itemData = [];
     const handleCreateClick = () => setShowCreate(!showCreate)
     const handleDeleteClick = () => setShowDelete(!showDelete)
-    const handleUpdateClick = () => setShowDelete(!showDelete)
-    const handleDisplayClick = () => setShowDelete(!showDelete)
+    const handleUpdateClick = () => setShowUpdate(!showUpdate)
+    const handleDisplayClick = () => setShowDisplay(!showDisplay)
 
 
     const [itemid, setItemId] = useState("");
@@ -17,14 +21,11 @@ const CrudItem = () => {
     const [itemquantity, setItemQuantity] = useState("");
     const [itemamount, setItemAmount] = useState("");
 
+    // State to store table response
+    const [fullTableDetails, setFulltableDetails] = useState([])
+
     const handleCreateItem = () => {
-        // Perform actions to create an order using the input values
-        // For this example, we'll just log the order details
-        // console.log("Customer ID:", itemid);
-        //console.log("Customer Name:", customername);
-        //console.log("Date Of Birth:", date);
-        //console.log("Mobile Number:", mobilenumber);
-        //console.log("Email:", email);
+       
     };
 
     const handleDeleteItem = () => {
@@ -35,12 +36,31 @@ const CrudItem = () => {
 
     };
     const handleDisplayItem = () => {
+        debugger;
+        fetch(
+            `http://v248s4i.exa-ag.com:8000/sap/opu/odata/sap/ZGW_ITEM_DETAILS1_SRV/Item_DetailsSet('${itemid}')?$format=json`
+        )
+
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                const { Mandt, ItemId, ItemDesc, ItemPrice, Currency } = data.d;
+                setFulltableDetails([{ Mandt, ItemId, ItemDesc, ItemPrice, Currency }]);
+                console.log(data);
+            }
+            )
 
     }
 
     return (
         <div>
+
             <button onClick={handleCreateClick}>Create</button>
+            <button onClick={handleDeleteClick}>Delete</button>
+            <button onClick={handleUpdateClick}>Update</button>
+            <button onClick={handleDisplayClick}>Display</button>
+
 
 
             {showCreate ?
@@ -88,10 +108,7 @@ const CrudItem = () => {
                 : null}
 
 
-            <button onClick={handleDeleteClick}>Delete</button>
-
-
-            {showCreate ?
+            {showDelete ?
                 <div>
                     <h1>Delete Item</h1>
                     <input
@@ -104,8 +121,7 @@ const CrudItem = () => {
                 </div>
                 : null}
 
-            <button onClick={handleUpdateClick}>Update</button>
-            {showCreate ?
+            {showUpdate ?
                 <div>
                     <h1>Update Item</h1>
                     <input
@@ -151,10 +167,7 @@ const CrudItem = () => {
 
 
 
-            <button onClick={handleDisplayClick}>Display</button>
-
-
-            {showCreate ?
+            {showDisplay ?
                 <div>
                     <h1>Display Item</h1>
                     <input
@@ -163,7 +176,58 @@ const CrudItem = () => {
                         value={itemid}
                         onChange={(e) => setItemId(e.target.value)}
                     />
-                    <button onClick={handleDisplayItem}>Display Item</button>
+                    {/* <button onClick={handleDisplayItem}>Display Item</button> */}
+
+                    <button onClick={() => {
+                        handleDisplayItem()
+                    }}>Display Item</button>
+
+                    {fullTableDetails && fullTableDetails.length > 0 ?
+
+                        <table class="table-design">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                    <th>Val</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {fullTableDetails.map(({ ItemId, ItemDesc, ItemPrice, Mandt }) => {
+                                    return (
+                                        <tr>
+                                            <td>{ItemId}</td>
+                                            <td>{ItemDesc}</td>
+                                            <td>{ItemPrice}</td>
+                                            <td>{Mandt}</td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+
+
+
+                        // <table>
+                        //     <th>
+                        //         <th>Id</th>
+                        //         <th>____Description</th>
+                        //         <th>__Price</th>
+                        //         <th>Val</th>
+                        //     </th>
+                        //     {fullTableDetails.map(({ ItemId, ItemDesc, ItemPrice, Mandt }) => {
+                        //         return (
+                        //             <tr>
+                        //                 <td>{ItemId}</td>
+                        //                 <td>{ItemDesc}</td>
+                        //                 <td>{ItemPrice}</td>
+                        //                 <td>{Mandt}</td>
+                        //             </tr>
+                        //         )
+                        //     })}
+                        // </table>
+                        : null}
                 </div>
                 : null}
         </div>
